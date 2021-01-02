@@ -35,7 +35,7 @@ def getSource(msg):
 
 def msgAuthUrl(msg, p):
 	r = p.get_account_info(fields=['auth_url'])
-	msg.reply_text('Use this url to login in 5 minutes: ' + r['auth_url'])
+	msg.reply_text('如果你需要编辑生成的 Telegraph，或者绑定到你的账户以便日后编辑，请在五分钟内点此链接登录：' + r['auth_url'])
 
 def msgTelegraphToken(msg):
 	source_id, shortname, longname = getSource(msg)
