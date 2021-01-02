@@ -15,8 +15,6 @@ with open('token') as f:
 
 debug_group = tele.bot.get_chat(420074357)
 
-no_auth_link_users = [-1001399998441] # prevent token leak through @web_record
-
 no_source_link = plain_db.loadKeyOnlyDB('no_source_link')
 
 with open('telegraph_tokens') as f:
@@ -46,7 +44,6 @@ def msgTelegraphToken(msg):
 		r = p.create_api_token(shortname, longname)
 		telegraph_tokens[source_id] = r['access_token']
 		saveTelegraphTokens()
-	if source_id not in no_auth_link_users:
 		msgAuthUrl(msg, p)
 
 def getTelegraph(msg, url):
@@ -79,23 +76,15 @@ def export(update, context):
 	msg = update.effective_message
 	if msg.chat_id < 0 and ('source' in msg.text) and ('[source]' in msg.text_markdown):
 		return
-	if msg.chat.username == 'web_record':
-		if (matchKey(msg.text_markdown, ['twitter', 'weibo', 
-				'douban', 't.me/']) and 
-				not matchKey(msg.text_markdown, ['article', 'note'])):
-			tryDelete(msg)
-			return
 	try:
-		r = msg.chat.send_message('received')
+		r = msg.chat.send_message('正在存档…')
 	except:
 		return
 	try:
 		exportImp(msg)
-		if msg.chat.username == 'web_record':
-			tryDelete(msg)
 	except Exception as e:
 		msg.chat.send_message(str(e))
-		if not matchKey(str(e), ['Content is too big.']):
+		if not matchKey(str(e), ['内容太长！']):
 			raise e
 	finally:
 		r.delete()
