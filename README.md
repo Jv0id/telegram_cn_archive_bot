@@ -1,48 +1,22 @@
-# telegraph_export_bot
+# telegram_cn_archive_bot
 
-Export webpage to Telegraph.
+将网页转录为 Telegraph。
 
-You are also welcome to use my [@export_telegraph_bot](https://t.me/export_telegraph_bot) without create your own bot.
+该项目在 [telegraph_export_bot](https://github.com/gaoyunzhi/telegraph_export_bot) 的基础上进行了中文本地化，并优化了一些性能。
 
-Feedback / feature requests are welcomed at [@dushufenxiang_chat](https://t.me/dushufenxiang_chat).
+你可以访问 [@CNArchiveBot](https://t.me/CNArchiveBot) 来体验该项目。  
+有问题可通过 [Issues] 或 [@NPDev](https://t.me/NPDev) 反馈。
 
-## usage
+## 如何使用
 
-Send link to the bot, and bot will reply a telegraph link with extracted article.
+向机器人发送链接，机器人会将该网页转录为 Telegraph 并将其链接回复给你。
 
-Feedback / feature requests are welcomed at [@dushufenxiang_chat](https://t.me/dushufenxiang_chat).
+## 附加功能
 
-## feature
+用户可以编辑生成的 Telegraph。
 
-User can edit the telegraph page afterwards.
+## 如何部署
 
-## how to install
-
-First, you need to create a Telegram bot. Talk with the [BotFather](https://t.me/botfather) and ask it for a bot (and its respective token)
-
-Once you get the token, save the token in the TOKEN file. Then run `python setup.py`.
-
-The bot will automatically be running at the end of setup.
-
-If you want to use your own telegraph token, feel free to replace the TELEGRAPH_TOKENS file.
-
-## bot description
-
-Send link to the bot, and bot will reply a telegraph link with extracted article. You can edit the telegraph link later.
-
-Feedback / feature requests are welcomed at @dushufenxiang_chat.
-
-Github: https://github.com/gaoyunzhi/telegraph_export_bot
-
-More projects: https://t.me/useless_project_ideas
-
-## bot commands
-
-token - Get your auth url to edit the generated telegraph.
-auth - Get your auth url to edit the generated telegraph.
-
-## bot about 
-
-## notes
-
-You are also welcome to use my [@export_telegraph_bot](https://t.me/export_telegraph_bot) without create your own bot.
+请先使用 [@BotFather](https://t.me/botfather) 生成一个机器人并获得 API Token。  
+再将 API Token 填入 `token` 文件。然后运行 `python setup.py`。  
+机器人将会在部署完成后自动运行。

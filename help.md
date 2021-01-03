@@ -1,9 +1,7 @@
-Send me the web link, I will export webpage to Telegraph.
+发送网址链接，将获得从网页转换生成的 Telegraph，并可进行编辑。
 
-commands:
-/auth: get the telegraph authentication link, after authentication, you will be able to edit the telegraph generated here.
-/toggle_source_link: config whether the telegraph contain your source link.
+指令：  
+/auth 登录以编辑生成的 Telegraph  
+/source 设置生成 Telegraph 是否显示来源链接
 
-Can be used in group/channel also.
-
-Github： https://github.com/gaoyunzhi/telegraph_export_bot
+仅私聊可用。
