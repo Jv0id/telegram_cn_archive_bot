@@ -1,13 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from telegram.ext import Updater, MessageHandler, Filters
-from telegram import MessageEntity
+import dbm
 
 import export_to_telegraph
+import requests
+import socket
+import socks
 from html_telegraph_poster import TelegraphPoster
+from telegram import MessageEntity
+from telegram.ext import Updater, MessageHandler, Filters
 from telegram_util import matchKey, log_on_fail
-import dbm
+
+socks_sys = socket.socket
+try:
+    socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 9050)
+    socket.socket = socks.socksocket
+    response = requests.get('https://api.telegram.org')
+except:
+    socket.socket = socks_sys
 
 with open('token') as f:
     tele = Updater(f.read().strip(), use_context=True)
