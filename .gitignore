@@ -1,8 +1,4 @@
-*TOKEN*
-*token*
-*SECRET*
-*CONFIG*
-*tmp*
-*CREDENTIALS*
-*nohup*
-db/
+token
+*.db
+nohup.*
+/venv/
