@@ -8,7 +8,9 @@ def setup():
 	kill()
 	if 'kill' in sys.argv:
 		return
-		
+
+	os.system('rm -f nohup.out')
+
 	RUN_COMMAND = "nohup python3 -u export.py &"
 
 	if 'debug' in sys.argv:
