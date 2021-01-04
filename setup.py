@@ -1,8 +1,10 @@
 import os
 import sys
 
+
 def kill():
 	os.system("ps aux | grep ython | grep export.py | awk '{print $2}' | xargs kill -9")
+
 
 def setup():
 	kill()
