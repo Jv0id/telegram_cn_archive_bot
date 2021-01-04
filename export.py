@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import dbm
-
 import export_to_telegraph
 import requests
 import socket
@@ -14,9 +13,9 @@ from telegram_util import matchKey, log_on_fail
 
 socks_sys = socket.socket
 try:
-    socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 9050)
+    socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 9050)
     socket.socket = socks.socksocket
-    response = requests.get('https://api.telegram.org')
+    response = requests.head('http://checkip.amazonaws.com', allow_redirects=False)
 except:
     socket.socket = socks_sys
 
@@ -46,14 +45,15 @@ def msg_auth_url(msg, p):
 
 def msg_telegraph_token(msg):
     source_id, shortname, longname = get_source(msg)
-    if source_id in telegraph_tokens:
-        p = TelegraphPoster(access_token=telegraph_tokens[source_id])
+    chat_id = str(source_id)
+    if chat_id in telegraph_tokens:
+        p = TelegraphPoster(access_token=telegraph_tokens[chat_id])
     else:
         p = TelegraphPoster()
         r = p.create_api_token(shortname, longname)
-        telegraph_tokens[source_id] = r['access_token']
+        telegraph_tokens[chat_id] = r['access_token']
         # saveTelegraphTokens()
-        msg_auth_url(msg, p)
+    msg_auth_url(msg, p)
 
 
 def get_telegraph(msg, url):
