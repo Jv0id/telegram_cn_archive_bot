@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import dbm
+import socket
+
 import export_to_telegraph
 import requests
-import socket
 import socks
 from html_telegraph_poster import TelegraphPoster
 from telegram import MessageEntity
@@ -58,10 +59,11 @@ def msg_telegraph_token(msg):
 
 def get_telegraph(msg, url):
     source_id, _, _ = get_source(msg)
-    if source_id not in telegraph_tokens:
+    chat_id = str(source_id)
+    if chat_id not in telegraph_tokens:
         msg_telegraph_token(msg)
 
-    export_to_telegraph.token = telegraph_tokens[source_id]
+    export_to_telegraph.token = telegraph_tokens[chat_id]
     return export_to_telegraph.export(url, throw_exception=True, force=True,
                                       toSimplified=('bot_simplify' in msg.text or msg.text.endswith(' s')),
                                       noSourceLink=str(msg.chat_id) not in source_flags)
