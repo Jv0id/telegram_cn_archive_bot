@@ -9,6 +9,8 @@ def setup():
 	if 'kill' in sys.argv:
 		return
 
+	os.chdir(sys.path[0])
+
 	os.system('rm -f nohup.out')
 
 	RUN_COMMAND = "nohup python3 -u export.py &"
