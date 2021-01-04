@@ -1,8 +1,6 @@
-telegram
 python-telegram-bot
 export_to_telegraph
 html_telegraph_poster
 telegram_util
 requests
 pySocks
-socks
