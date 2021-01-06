@@ -15,7 +15,7 @@ from telegram_util import matchKey, log_on_fail
 
 socks_none = socket.socket
 try:
-	socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 9050)
+	socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, '127.0.0.1', 9050)
 	socket.socket = socks.socksocket
 
 	requests.head('http://checkip.amazonaws.com', allow_redirects=False)
@@ -81,15 +81,15 @@ def transfer(msg):
 	for item in msg.entities:
 		url = ''
 		if item['type'] == 'url':
-			url = msg.text[item["offset"]:][:item["length"]]
+			url = msg.text[item['offset']:][:item['length']]
 		elif item['type'] == 'text_link':
-			t = msg.text[item["offset"]:][:item["length"]]
+			t = msg.text[item['offset']:][:item['length']]
 			if not matchKey(t, ['source', '原文']):
 				url = item['url']
 		else:
 			continue
 		if '://' not in url:
-			url = "http://" + url
+			url = 'http://' + url
 		elif not url.startswith('http'):
 			continue
 		result = get_telegraph(msg, url)
