@@ -3,7 +3,7 @@ import sys
 
 
 def kill():
-	os.system("ps aux | grep ython | grep export.py | awk '{print $2}' | xargs kill -9")
+	os.system("ps aux | grep ython | grep archive.py | awk '{print $2}' | xargs kill -9")
 
 
 def setup():
@@ -15,7 +15,7 @@ def setup():
 
 	os.system('rm -f nohup.out')
 
-	RUN_COMMAND = "nohup python3 -u export.py &"
+	RUN_COMMAND = "nohup python3 -u archive.py &"
 
 	if 'debug' in sys.argv:
 		os.system(RUN_COMMAND[6:-2])

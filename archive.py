@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import dbm
-import socket
 import os
+import socket
+
 import export_to_telegraph
 import requests
 import socks
@@ -33,7 +34,7 @@ with open('token') as f:
 debug_chat = tele.bot.get_chat(656869271)
 
 source_flags = dbm.open('source_flags.db', 'c')
-
+simplify_flags = dbm.open('simplify_flags.db', 'c')
 telegraph_tokens = dbm.open('telegraph_tokens.db', 'c')
 
 # def save_telegraph_tokens():
@@ -71,8 +72,8 @@ def get_telegraph(msg, url):
 		get_telegraph_token(msg)
 
 	export_to_telegraph.token = telegraph_tokens[fid]
-	simplify = 'bot_simplify' in msg.text or msg.text.endswith(' s')
-	source = str(msg.chat_id) in source_flags
+	simplify = fid in source_flags
+	source = fid in source_flags
 	return export_to_telegraph.export(url, throw_exception=True, force=True, toSimplified=simplify, noSourceLink=not source)
 
 
@@ -120,13 +121,26 @@ def archive(update):
 
 
 def switch_source_flag(msg):
-	chat_id = str(msg.chat_id)
-	if chat_id in source_flags:
-		del source_flags[chat_id]
-		msg.reply_text('将隐藏来源链接')
+	from_id, _, _ = get_from(msg)
+	fid = str(from_id)
+	if fid in source_flags:
+		del source_flags[fid]
+		msg.reply_text('将隐藏原文链接')
 	else:
-		source_flags[chat_id] = b'1'
-		msg.reply_text('将展示来源链接')
+		source_flags[fid] = b'1'
+		msg.reply_text('将展示原文链接')
+	# source_flags.sync()
+
+
+def switch_simplify_flag(msg):
+	from_id, _, _ = get_from(msg)
+	fid = str(from_id)
+	if fid in simplify_flags:
+		del simplify_flags[fid]
+		msg.reply_text('将进行繁简转换')
+	else:
+		simplify_flags[fid] = b'1'
+		msg.reply_text('将不再繁简转换')
 	# source_flags.sync()
 
 
@@ -139,8 +153,10 @@ def command(update):
 	msg = update.message
 	if matchKey(msg.text, ['auth', 'token']):
 		return get_telegraph_token(msg)
-	if matchKey(msg.text, ['toggle', 'source']):
+	if matchKey(msg.text, ['source']):
 		return switch_source_flag(msg)
+	if matchKey(msg.text, ['simplify']):
+		return switch_simplify_flag(msg)
 	if msg.chat_id > 0:  # from private
 		msg.reply_text(help_message)
 
