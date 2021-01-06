@@ -12,14 +12,20 @@ from telegram import MessageEntity
 from telegram.ext import Updater, MessageHandler, Filters
 from telegram_util import matchKey, log_on_fail
 
-socks_sys = socket.socket
+socks_none = socket.socket
 try:
     socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 9050)
     socket.socket = socks.socksocket
+
     requests.head('http://checkip.amazonaws.com', allow_redirects=False)
+
     os.environ['NO_PROXY'] = 'telegram.org,telegraph,telegra.ph'
+
+    def getaddrinfo(*args):
+        return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
+    socket.getaddrinfo = getaddrinfo
 except:
-    socket.socket = socks_sys
+    socket.socket = socks_none
 
 with open('token') as f:
     tele = Updater(f.read().strip(), use_context=True)
