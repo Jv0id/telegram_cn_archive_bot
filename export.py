@@ -3,7 +3,7 @@
 
 import dbm
 import socket
-
+import os
 import export_to_telegraph
 import requests
 import socks
@@ -16,7 +16,8 @@ socks_sys = socket.socket
 try:
     socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 9050)
     socket.socket = socks.socksocket
-    response = requests.head('http://checkip.amazonaws.com', allow_redirects=False)
+    requests.head('http://checkip.amazonaws.com', allow_redirects=False)
+    os.environ['NO_PROXY'] = 'telegram.org,telegraph,telegra.ph'
 except:
     socket.socket = socks_sys
 
@@ -30,7 +31,7 @@ source_flags = dbm.open('source_flags.db', 'c')
 telegraph_tokens = dbm.open('telegraph_tokens.db', 'c')
 
 
-# def saveTelegraphTokens():
+# def save_telegraph_tokens():
 # 	telegraph_tokens.sync()
 
 def get_source(msg):
@@ -53,7 +54,7 @@ def msg_telegraph_token(msg):
         p = TelegraphPoster()
         r = p.create_api_token(shortname, longname)
         telegraph_tokens[chat_id] = r['access_token']
-        # saveTelegraphTokens()
+        # save_telegraph_tokens()
     msg_auth_url(msg, p)
 
 
