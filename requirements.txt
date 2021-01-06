@@ -1,4 +1,4 @@
-export_to_telegraph
+webpage2telegraph
 requests
 pySocks
 html_telegraph_poster

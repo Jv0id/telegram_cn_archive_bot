@@ -5,7 +5,7 @@ import dbm
 import os
 import socket
 
-import export_to_telegraph
+import webpage2telegraph
 import requests
 import socks
 from html_telegraph_poster import TelegraphPoster
@@ -71,10 +71,10 @@ def get_telegraph(msg, url):
 	if fid not in telegraph_tokens:
 		get_telegraph_token(msg)
 
-	export_to_telegraph.token = telegraph_tokens[fid]
+	webpage2telegraph.token = telegraph_tokens[fid]
 	simplify = fid in source_flags
 	source = fid in source_flags
-	return export_to_telegraph.export(url, throw_exception=True, force=True, toSimplified=simplify, noSourceLink=not source)
+	return webpage2telegraph.transfer(url, throw_exception=True, source=source, simplify=simplify)
 
 
 def transfer(msg):
