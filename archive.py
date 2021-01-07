@@ -20,7 +20,7 @@ try:
 
 	requests.head('http://checkip.amazonaws.com', allow_redirects=False)
 
-	os.environ['NO_PROXY'] = 'telegram.org,telegraph,telegra.ph'
+	os.environ['NO_PROXY'] = 'telegram.org,telegra.ph'
 
 	def getaddrinfo(*args):
 		return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
