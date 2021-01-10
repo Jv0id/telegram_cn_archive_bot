@@ -5,9 +5,9 @@ import dbm
 import os
 import socket
 
-import webpage2telegraph
 import requests
 import socks
+import webpage2telegraph
 from html_telegraph_poster import TelegraphPoster
 from telegram import MessageEntity
 from telegram.ext import Updater, MessageHandler, Filters
@@ -100,7 +100,7 @@ def transfer(msg):
 
 
 @log_on_fail(debug_chat)
-def archive(update):
+def archive(update, context):
 	if update.edited_message or update.edited_channel_post:
 		return
 	msg = update.effective_message
@@ -149,7 +149,7 @@ with open('help.md') as f:
 
 
 @log_on_fail(debug_chat)
-def command(update):
+def command(update, context):
 	msg = update.message
 	if matchKey(msg.text, ['auth', 'token']):
 		return get_telegraph_token(msg)
