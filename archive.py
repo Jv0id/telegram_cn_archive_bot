@@ -15,16 +15,10 @@ from telegram_util import matchKey, log_on_fail
 
 socks_none = socket.socket
 try:
-	socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, '127.0.0.1', 9050)
+	os.environ['NO_PROXY'] = 'api.telegram.org,api.telegra.ph'
+	socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, addr='127.0.0.1', port=9050, rdns=True)
 	socket.socket = socks.socksocket
-
 	requests.head('http://checkip.amazonaws.com', allow_redirects=False)
-
-	os.environ['NO_PROXY'] = 'telegram.org,telegra.ph'
-
-	def getaddrinfo(*args):
-		return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', (args[0], args[1]))]
-	socket.getaddrinfo = getaddrinfo
 except:
 	socket.socket = socks_none
 
