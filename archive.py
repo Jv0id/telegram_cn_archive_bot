@@ -131,10 +131,10 @@ def switch_simplify_flag(msg):
 	fid = str(from_id)
 	if fid in simplify_flags:
 		del simplify_flags[fid]
-		msg.reply_text('将进行繁简转换')
+		msg.reply_text('将不再繁简转换')
 	else:
 		simplify_flags[fid] = b'1'
-		msg.reply_text('将不再繁简转换')
+		msg.reply_text('将进行繁简转换')
 	# source_flags.sync()
 
 
