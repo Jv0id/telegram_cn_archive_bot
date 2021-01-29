@@ -7,16 +7,26 @@ import socket
 
 import requests
 import socks
-import webpage2telegraph
 from html_telegraph_poster import TelegraphPoster
 from telegram import MessageEntity
 from telegram.ext import Updater, MessageHandler, Filters
 from telegram_util import matchKey, log_on_fail
 
+import webpage2telegraph
+
 socks_none = socket.socket
 try:
     os.environ['NO_PROXY'] = 'api.telegram.org,api.telegra.ph'
     socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, addr='127.0.0.1', port=9050, rdns=True)
+    old_getaddrinfo = socket.getaddrinfo
+
+
+    def new_getaddrinfo(*args, **kwargs):
+        responses = old_getaddrinfo(*args, **kwargs)
+        return [response for response in responses if response[0] == socket.AF_INET]  # 强制使用ipv4
+
+
+    socket.getaddrinfo = new_getaddrinfo
     socket.socket = socks.socksocket
     requests.head('http://checkip.amazonaws.com', allow_redirects=False)
 except:
@@ -30,6 +40,7 @@ debug_chat = tele.bot.get_chat(656869271)
 source_flags = dbm.open('source_flags.db', 'c')
 simplify_flags = dbm.open('simplify_flags.db', 'c')
 telegraph_tokens = dbm.open('telegraph_tokens.db', 'c')
+
 
 # def save_telegraph_tokens():
 # 	telegraph_tokens.sync()
@@ -123,6 +134,8 @@ def switch_source_flag(msg):
     else:
         source_flags[fid] = b'1'
         msg.reply_text('将展示原文链接')
+
+
 # source_flags.sync()
 
 
@@ -135,6 +148,8 @@ def switch_simplify_flag(msg):
     else:
         simplify_flags[fid] = b'1'
         msg.reply_text('将进行繁简转换')
+
+
 # source_flags.sync()
 
 
@@ -155,7 +170,9 @@ def command(update, context):
         msg.reply_text(help_message)
 
 
-tele.dispatcher.add_handler(MessageHandler(Filters.text & (Filters.entity(MessageEntity.URL) | Filters.entity(MessageEntity.TEXT_LINK)), archive))
+tele.dispatcher.add_handler(
+    MessageHandler(Filters.text & (Filters.entity(MessageEntity.URL) | Filters.entity(MessageEntity.TEXT_LINK)),
+                   archive))
 tele.dispatcher.add_handler(MessageHandler(Filters.command, command))
 
 tele.start_polling()
