@@ -1,6 +1,7 @@
 # Telegram CN Archive Bot
+Telegram 机器人：将网页转录为 Telegraph。
 
-在 [telegraph_export_bot](https://github.com/gaoyunzhi/telegraph_export_bot) 的基础上进行了中文本地化，并优化了一些性能。
+基于 [telegraph_export_bot](https://github.com/gaoyunzhi/telegraph_export_bot) 进行了中文本地化，并优化了一些性能。
 
 你可以访问 [@CNArchiveBot](https://t.me/CNArchiveBot) 来体验该项目。  
 有问题可通过 [Issues](https://github.com/NullPointerMaker/telegram_cn_archive_bot/issues) 或 [@NPDev](https://t.me/NPDev) 反馈。
