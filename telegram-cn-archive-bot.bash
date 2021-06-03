@@ -1,6 +1,6 @@
 #!/bin/bash
 cd `dirname ${BASH_SOURCE}`
-name=$(basename $BASH_SOURCE)
+name=`basename $BASH_SOURCE | cut -d . -f1`
 command="python3 -u archive.py"
 function doStart {
 	pid=`pidof $name`
