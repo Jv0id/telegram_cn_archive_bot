@@ -20,10 +20,12 @@ def set_proxy():
         os.environ['no_proxy'] = 'api.telegram.org,api.telegra.ph'
         if config.jsproxy:
             os.environ['no_proxy'] = os.environ['no_proxy'] + ',' + config.jsproxy
-            config.jsproxy = 'https://' + config.jsproxy + '/-----'
         if config.siteproxy:
             os.environ['no_proxy'] = os.environ['no_proxy'] + ',' + config.siteproxy
-            config.jsproxy = 'https://' + config.siteproxy + '/'
+    if config.jsproxy:
+        config.jsproxy = 'https://' + config.jsproxy + '/-----'
+    if config.siteproxy:
+        config.siteproxy = 'https://' + config.siteproxy + '/'
 
 
 set_proxy()
