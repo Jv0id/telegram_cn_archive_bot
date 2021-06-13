@@ -134,9 +134,13 @@ def archive(update, context):
             pass
         raise e
     finally:
-        log = ['%s (%d):' % (getDisplayUserHtml(msg.from_user), msg.from_user.id), msg.text_html,
-               'Error:', error,
-               'Result:', '\n'.join(result)]
+        log = ['%s (%d):' % (getDisplayUserHtml(msg.from_user), msg.from_user.id), msg.text_html]
+        if error:
+            log.append('\nError:')
+            log.append(error)
+        if result:
+            log.append('\nResult:')
+            log.append('\n'.join(result))
         log_chat.send_message('\n'.join(log),
                               parse_mode=ParseMode.HTML,
                               disable_web_page_preview=True)
