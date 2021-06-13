@@ -8,7 +8,7 @@ import webpage2telegraph
 from html_telegraph_poster import TelegraphPoster
 from telegram import MessageEntity
 from telegram.ext import Updater, MessageHandler, Filters
-from telegram_util import matchKey, log_on_fail
+from telegram_util import matchKey, log_on_fail, getBasicLog
 
 import config
 
@@ -81,6 +81,7 @@ def transfer(msg):
         elif not url.startswith('http'):
             continue
         result = get_telegraph(msg, url)
+        yield result
         if str(msg.chat_id) in source_flags:
             msg.chat.send_message('%s\n[原文](%s)' % (result, url), parse_mode='Markdown')
         else:
@@ -95,17 +96,26 @@ def archive(update, context):
     if msg.forward_from and msg.forward_from.username == 'CNArchiveBot':
         return
     try:
-        r = msg.chat.send_message('正在存档…')
+        process_msg = msg.chat.send_message('正在存档…')
     except:
         return
+    error = ''
+    result = []
     try:
-        transfer(msg)
+        result = list(transfer(msg))
     except Exception as e:
-        msg.chat.send_message(str(e))
-        if not matchKey(str(e), ['Content is too big.']):
-            raise e
+        error = str(e)
+        try:
+            msg.chat.send_message(error)
+        except:  # 洪水攻击时会发生异常
+            pass
     finally:
-        r.delete()
+        msg_log = getBasicLog(msg)
+        result = ' '.join(result)
+        log_chat.send_message('%s 错误：%s\n结果：%s' % (msg_log, error, result),
+                              parse_mode='markdown',
+                              disable_web_page_preview=True)
+        process_msg.delete()
 
 
 def switch_source_flag(msg):
