@@ -14,11 +14,7 @@ from telegram_util import matchKey, log_on_fail
 
 import webpage2telegraph
 
-socks_none = socket.socket
-try:
-    os.environ['NO_PROXY'] = 'api.telegram.org,api.telegra.ph'
-    socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, addr='127.0.0.1', port=9050, rdns=True)
-    old_getaddrinfo = socket.getaddrinfo
+import config
 
 
     def new_getaddrinfo(*args, **kwargs):
@@ -32,10 +28,8 @@ try:
 except:
     socket.socket = socks_none
 
-with open('token') as f:
-    tele = Updater(f.read().strip(), use_context=True)
-
-debug_chat = tele.bot.get_chat(656869271)
+tele = Updater(config.api_token, use_context=True)
+debug_chat = tele.bot.get_chat(config.debug_chat)
 
 source_flags = dbm.open('source_flags.db', 'c')
 simplify_flags = dbm.open('simplify_flags.db', 'c')
