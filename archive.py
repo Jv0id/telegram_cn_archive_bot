@@ -6,9 +6,9 @@ import os
 
 import webpage2telegraph
 from html_telegraph_poster import TelegraphPoster
-from telegram import MessageEntity
+from telegram import MessageEntity, ParseMode
 from telegram.ext import Updater, MessageHandler, Filters
-from telegram_util import matchKey, log_on_fail, getDisplayUser
+from telegram_util import matchKey, log_on_fail, getDisplayUserHtml
 
 import config
 
@@ -104,7 +104,7 @@ def transfer(msg):
         result = get_telegraph(msg, url)
         yield result
         if str(msg.chat_id) in source_flags:
-            msg.chat.send_message('%s\n[原文](%s)' % (result, url), parse_mode='Markdown')
+            msg.chat.send_message('%s\n<a href="%s">原文</a>' % (result, url), parse_mode=ParseMode.HTML)
         else:
             msg.chat.send_message(result)
 
@@ -131,11 +131,11 @@ def archive(update, context):
         except:  # 洪水攻击时会发生异常
             pass
     finally:
-        log = ['%s (%d):' % (getDisplayUser(msg.from_user), msg.from_user.id), msg.text,
-               '\nError:', error,
-               '\nResult:', '\n'.join(result)]
+        log = ['%s (%d):' % (getDisplayUserHtml(msg.from_user), msg.from_user.id), msg.text_html,
+               'Error:', error,
+               'Result:', '\n'.join(result)]
         log_chat.send_message('\n'.join(log),
-                              parse_mode='markdown',
+                              parse_mode=ParseMode.HTML,
                               disable_web_page_preview=True)
         process_msg.delete()
 
