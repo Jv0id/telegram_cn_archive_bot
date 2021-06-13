@@ -8,7 +8,7 @@ import webpage2telegraph
 from html_telegraph_poster import TelegraphPoster
 from telegram import MessageEntity
 from telegram.ext import Updater, MessageHandler, Filters
-from telegram_util import matchKey, log_on_fail, getBasicLog
+from telegram_util import matchKey, log_on_fail, getDisplayUser
 
 import config
 
@@ -131,9 +131,10 @@ def archive(update, context):
         except:  # 洪水攻击时会发生异常
             pass
     finally:
-        msg_log = getBasicLog(msg)
-        result = ' '.join(result)
-        log_chat.send_message('%s 错误：%s\n结果：%s' % (msg_log, error, result),
+        log = ['%s (%d):' % (getDisplayUser(msg.from_user), msg.from_user.id), msg.text,
+               '\nError:', error,
+               '\nResult:', '\n'.join(result)]
+        log_chat.send_message('\n'.join(log),
                               parse_mode='markdown',
                               disable_web_page_preview=True)
         process_msg.delete()
