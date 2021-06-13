@@ -3,24 +3,20 @@
 
 import dbm
 import os
-import socket
 
-import requests
-import socks
+import webpage2telegraph
 from html_telegraph_poster import TelegraphPoster
 from telegram import MessageEntity
 from telegram.ext import Updater, MessageHandler, Filters
 from telegram_util import matchKey, log_on_fail
-
-import webpage2telegraph
 
 import config
 
 
 def set_proxy():
     if config.proxy:
-        os.environ['http_proxy']=config.proxy
-        os.environ['https_proxy']=config.proxy
+        os.environ['http_proxy'] = config.proxy
+        os.environ['https_proxy'] = config.proxy
         os.environ['no_proxy'] = 'api.telegram.org,api.telegra.ph'
 
 
@@ -54,7 +50,6 @@ def get_telegraph_token(msg):
         p = TelegraphPoster()
         r = p.create_api_token(name, username)
         telegraph_tokens[fid] = r['access_token']
-    # save_telegraph_tokens()
     send_auth_url(msg, p)
 
 
@@ -124,9 +119,6 @@ def switch_source_flag(msg):
         msg.reply_text('将展示原文链接')
 
 
-# source_flags.sync()
-
-
 def switch_simplify_flag(msg):
     from_id, _, _ = get_from(msg)
     fid = str(from_id)
@@ -136,9 +128,6 @@ def switch_simplify_flag(msg):
     else:
         simplify_flags[fid] = b'1'
         msg.reply_text('将进行繁简转换')
-
-
-# source_flags.sync()
 
 
 with open('help.md') as f:
