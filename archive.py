@@ -17,16 +17,14 @@ import webpage2telegraph
 import config
 
 
-    def new_getaddrinfo(*args, **kwargs):
-        responses = old_getaddrinfo(*args, **kwargs)
-        return [response for response in responses if response[0] == socket.AF_INET]  # 强制使用ipv4
+def set_proxy():
+    if config.proxy:
+        os.environ['http_proxy']=config.proxy
+        os.environ['https_proxy']=config.proxy
+        os.environ['no_proxy'] = 'api.telegram.org,api.telegra.ph'
 
 
-    socket.getaddrinfo = new_getaddrinfo
-    socket.socket = socks.socksocket
-    requests.head('http://checkip.amazonaws.com', allow_redirects=False)
-except:
-    socket.socket = socks_none
+set_proxy()
 
 tele = Updater(config.api_token, use_context=True)
 debug_chat = tele.bot.get_chat(config.debug_chat)
@@ -34,10 +32,6 @@ debug_chat = tele.bot.get_chat(config.debug_chat)
 source_flags = dbm.open('source_flags.db', 'c')
 simplify_flags = dbm.open('simplify_flags.db', 'c')
 telegraph_tokens = dbm.open('telegraph_tokens.db', 'c')
-
-
-# def save_telegraph_tokens():
-# 	telegraph_tokens.sync()
 
 
 def get_from(msg):
