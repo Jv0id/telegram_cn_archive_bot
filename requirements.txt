@@ -1,6 +1,4 @@
 webpage2telegraph
-requests
-pySocks
 html_telegraph_poster
 python-telegram-bot
 telegram_util
