@@ -23,7 +23,7 @@ def set_proxy():
 set_proxy()
 
 tele = Updater(config.api_token, use_context=True)
-debug_chat = tele.bot.get_chat(config.debug_chat)
+log_chat = tele.bot.get_chat(config.log_chat)
 
 source_flags = dbm.open('source_flags.db', 'c')
 simplify_flags = dbm.open('simplify_flags.db', 'c')
@@ -87,7 +87,7 @@ def transfer(msg):
             msg.chat.send_message(result)
 
 
-@log_on_fail(debug_chat)
+@log_on_fail(log_chat)
 def archive(update, context):
     if update.edited_message or update.edited_channel_post:
         return
@@ -134,7 +134,7 @@ with open('help.md') as f:
     help_message = f.read()
 
 
-@log_on_fail(debug_chat)
+@log_on_fail(log_chat)
 def command(update, context):
     msg = update.message
     if matchKey(msg.text, ['auth', 'token']):
