@@ -61,6 +61,7 @@ def get_telegraph_token(msg):
     send_auth_url(msg, p)
 
 
+# noinspection PyBroadException
 def get_telegraph(msg, url):
     from_id, _, _ = get_from(msg)
     fid = str(from_id)
@@ -71,19 +72,19 @@ def get_telegraph(msg, url):
     source = fid in source_flags
     try:
         return webpage2telegraph.transfer(url, source=source, simplify=simplify)
-    except IOError as ioe:
+    except Exception as e:
         if config.jsproxy:
             try:
                 return webpage2telegraph.transfer(config.jsproxy + url, source=False, simplify=simplify)
-            except IOError:
+            except:
                 pass
         if config.siteproxy:
             urls = url.split(':/', 1)
             try:
                 return webpage2telegraph.transfer(config.siteproxy + urls[0] + urls[1], source=False, simplify=simplify)
-            except IOError:
+            except:
                 pass
-        raise ioe
+        raise e
 
 
 def transfer(msg):
@@ -109,6 +110,7 @@ def transfer(msg):
             msg.chat.send_message(result)
 
 
+# noinspection PyBroadException
 @log_on_fail(log_chat)
 def archive(update, context):
     if update.edited_message or update.edited_channel_post:
@@ -130,6 +132,7 @@ def archive(update, context):
             msg.chat.send_message(error)
         except:  # 洪水攻击时会发生异常
             pass
+        raise e
     finally:
         log = ['%s (%d):' % (getDisplayUserHtml(msg.from_user), msg.from_user.id), msg.text_html,
                'Error:', error,
