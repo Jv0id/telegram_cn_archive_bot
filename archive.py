@@ -18,6 +18,12 @@ def set_proxy():
         os.environ['http_proxy'] = config.proxy
         os.environ['https_proxy'] = config.proxy
         os.environ['no_proxy'] = 'api.telegram.org,api.telegra.ph'
+        if config.jsproxy:
+            os.environ['no_proxy'] = os.environ['no_proxy'] + ',' + config.jsproxy
+            config.jsproxy = 'https://' + config.jsproxy + '/-----'
+        if config.siteproxy:
+            os.environ['no_proxy'] = os.environ['no_proxy'] + ',' + config.siteproxy
+            config.jsproxy = 'https://' + config.siteproxy + '/'
 
 
 set_proxy()
@@ -58,11 +64,24 @@ def get_telegraph(msg, url):
     fid = str(from_id)
     if fid not in telegraph_tokens:
         get_telegraph_token(msg)
-
     webpage2telegraph.token = telegraph_tokens[fid]
     simplify = fid in source_flags
     source = fid in source_flags
-    return webpage2telegraph.transfer(url, throw_exception=True, source=source, simplify=simplify)
+    try:
+        return webpage2telegraph.transfer(url, source=source, simplify=simplify)
+    except IOError as ioe:
+        if config.jsproxy:
+            try:
+                return webpage2telegraph.transfer(config.jsproxy + url, source=False, simplify=simplify)
+            except IOError:
+                pass
+        if config.siteproxy:
+            urls = url.split(':/', 1)
+            try:
+                return webpage2telegraph.transfer(config.siteproxy + urls[0] + urls[1], source=False, simplify=simplify)
+            except IOError:
+                pass
+        raise ioe
 
 
 def transfer(msg):
