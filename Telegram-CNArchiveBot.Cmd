@@ -1,9 +1,10 @@
 @Echo off
+@Rem Python 3 launcher with pause at exit
 SetLocal EnableDelayedExpansion
 Title %~n0
 CD /D "%~dp0"
 
-Python archive.py
+Python3 archive.py
 Set ExitCode=!ErrorLevel!
 Echo.
 If Not "!ExitCode!"=="0" (
