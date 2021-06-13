@@ -157,9 +157,11 @@ def command(update, context):
         msg.reply_text(help_message)
 
 
-tele.dispatcher.add_handler(
-    MessageHandler(Filters.text & (Filters.entity(MessageEntity.URL) | Filters.entity(MessageEntity.TEXT_LINK)),
-                   archive))
+tele.dispatcher.add_handler(MessageHandler(
+    Filters.text &
+    (Filters.entity(MessageEntity.URL) | Filters.entity(MessageEntity.TEXT_LINK)),
+    archive)
+)
 tele.dispatcher.add_handler(MessageHandler(Filters.command, command))
 
 tele.start_polling()
