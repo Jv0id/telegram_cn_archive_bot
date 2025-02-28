@@ -1,4 +1,6 @@
-webpage2telegraph
+webpage2telegraph~=2021.7.14
 html_telegraph_poster
-python-telegram-bot
+python-telegram-bot~=21.10
 telegram_util
+
+urllib3~=2.3.0

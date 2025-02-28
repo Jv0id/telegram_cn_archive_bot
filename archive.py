@@ -1,37 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 import dbm
-import os
+import warnings
+
+from urllib3.exceptions import NotOpenSSLWarning
+
+warnings.filterwarnings("ignore", category=NotOpenSSLWarning)
 
 import webpage2telegraph
 from html_telegraph_poster import TelegraphPoster
-from telegram import MessageEntity, ParseMode
-from telegram.ext import Updater, MessageHandler, Filters
+from telegram.constants import ParseMode
+from telegram.ext import Application, MessageHandler, filters
 from telegram_util import matchKey, log_on_fail, getDisplayUserHtml
 
 import config
 
+application = Application.builder().token(config.api_token).build()
 
-def set_proxy():
-    if config.proxy:
-        os.environ['http_proxy'] = config.proxy
-        os.environ['https_proxy'] = config.proxy
-        os.environ['no_proxy'] = 'api.telegram.org,api.telegra.ph'
-        if config.jsproxy:
-            os.environ['no_proxy'] = os.environ['no_proxy'] + ',' + config.jsproxy
-        if config.siteproxy:
-            os.environ['no_proxy'] = os.environ['no_proxy'] + ',' + config.siteproxy
-    if config.jsproxy:
-        config.jsproxy = 'https://' + config.jsproxy + '/-----'
-    if config.siteproxy:
-        config.siteproxy = 'https://' + config.siteproxy + '/'
+# 修改这里，使用异步调用获取 log_chat
+log_chat = None
 
 
-set_proxy()
+async def init_log_chat():
+    global log_chat
+    log_chat = await application.bot.get_chat(config.log_chat)
 
-tele = Updater(config.api_token, use_context=True)
-log_chat = tele.bot.get_chat(config.log_chat)
 
 source_flags = dbm.open('source_flags.db', 'c')
 simplify_flags = dbm.open('simplify_flags.db', 'c')
@@ -46,7 +39,7 @@ def get_from(msg):
 
 def send_auth_url(msg, p):
     r = p.get_account_info(fields=['auth_url'])
-    msg.reply_text('如果你需要编辑生成的 Telegraph，或者绑定到你的账户以便日后编辑，请在五分钟内点此链接登录：' + r['auth_url'])
+    msg.chat.send_message('请在五分钟内点此链接登录: ' + r['auth_url'])
 
 
 def get_telegraph_token(msg):
@@ -61,7 +54,6 @@ def get_telegraph_token(msg):
     send_auth_url(msg, p)
 
 
-# noinspection PyBroadException
 def get_telegraph(msg, url):
     from_id, _, _ = get_from(msg)
     fid = str(from_id)
@@ -70,32 +62,18 @@ def get_telegraph(msg, url):
     webpage2telegraph.token = telegraph_tokens[fid]
     simplify = fid in source_flags
     source = fid in source_flags
-    try:
-        return webpage2telegraph.transfer(url, source=source, simplify=simplify)
-    except Exception as e:
-        if config.jsproxy:
-            try:
-                return webpage2telegraph.transfer(config.jsproxy + url, source=False, simplify=simplify)
-            except:
-                pass
-        if config.siteproxy:
-            urls = url.split(':/', 1)
-            try:
-                return webpage2telegraph.transfer(config.siteproxy + urls[0] + urls[1], source=False, simplify=simplify)
-            except:
-                pass
-        raise e
+    return webpage2telegraph.transfer(url, source=source, simplify=simplify)
 
 
 def transfer(msg):
     for item in msg.entities:
         url = ''
-        if item['type'] == 'url':
-            url = msg.text[item['offset']:][:item['length']]
-        elif item['type'] == 'text_link':
-            t = msg.text[item['offset']:][:item['length']]
+        if item.type == 'url':
+            url = msg.text[item.offset:][:item.length]
+        elif item.type == 'text_link':
+            t = msg.text[item.offset:][:item.length]
             if not matchKey(t, ['source', '原文']):
-                url = item['url']
+                url = item.url
         else:
             continue
         if '://' not in url:
@@ -110,16 +88,16 @@ def transfer(msg):
             msg.chat.send_message(result)
 
 
-# noinspection PyBroadException
 @log_on_fail(log_chat)
-def archive(update, context):
+async def archive(update, context):
     if update.edited_message or update.edited_channel_post:
         return
     msg = update.effective_message
-    if msg.forward_from and msg.forward_from.username == 'CNArchiveBot':
+    if msg.forward_origin and hasattr(msg.forward_origin,
+                                      'sender_user') and msg.forward_origin.sender_user.username == 'CNArchiveBot':
         return
     try:
-        process_msg = msg.chat.send_message('正在存档…')
+        process_msg = await msg.chat.send_message('正在存档…')
     except:
         return
     error = ''
@@ -129,22 +107,25 @@ def archive(update, context):
     except Exception as e:
         error = str(e)
         try:
-            msg.chat.send_message(error)
+            await msg.chat.send_message(error)
         except:  # 洪水攻击时会发生异常
             pass
         raise e
     finally:
-        log = ['%s (%d):' % (getDisplayUserHtml(msg.from_user), msg.from_user.id), msg.text_html]
+        log = ['']
         if error:
             log.append('\nError:')
             log.append(error)
         if result:
-            log.append('\nResult:')
-            log.append('\n'.join(result))
-        log_chat.send_message('\n'.join(log),
-                              parse_mode=ParseMode.HTML,
-                              disable_web_page_preview=True)
-        process_msg.delete()
+            log.append('\n\n'.join(result))
+        # 确保 log_chat 已经初始化
+        if log_chat is None:
+            await init_log_chat()
+        await log_chat.send_message('\n'.join(log),
+                                    parse_mode=ParseMode.HTML,
+                                    disable_web_page_preview=False)
+        await process_msg.delete()
+        await msg.delete()
 
 
 def switch_source_flag(msg):
@@ -174,7 +155,7 @@ with open('help.md') as f:
 
 
 @log_on_fail(log_chat)
-def command(update, context):
+async def command(update, context):
     msg = update.message
     if matchKey(msg.text, ['auth', 'token']):
         return get_telegraph_token(msg)
@@ -183,15 +164,16 @@ def command(update, context):
     if matchKey(msg.text, ['simplify']):
         return switch_simplify_flag(msg)
     if msg.chat_id > 0:  # from private
-        msg.reply_text(help_message)
+        await msg.reply_text(help_message)
 
 
-tele.dispatcher.add_handler(MessageHandler(
-    Filters.text &
-    (Filters.entity(MessageEntity.URL) | Filters.entity(MessageEntity.TEXT_LINK)),
+# 添加处理器
+application.add_handler(MessageHandler(
+    filters.TEXT &
+    (filters.Entity("url") | filters.Entity("text_link")),
     archive)
 )
-tele.dispatcher.add_handler(MessageHandler(Filters.command, command))
+application.add_handler(MessageHandler(filters.COMMAND, command))
 
-tele.start_polling()
-tele.idle()
+# 启动机器人
+application.run_polling()
